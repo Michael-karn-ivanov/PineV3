@@ -41,7 +41,8 @@ namespace Core
                 var deckCopy = new byte[52];
                 deck.CopyTo(deckCopy, 0);
                 heroHand.CopyTo(heroHandCopy, 0);
-                var score = placeCardsAndEval(heroHandCopy, b[0], b[1], b[2], b[3], deckCopy, heroEmptyCards, sampleSize);
+                Predictor slave = new Predictor();
+                var score = slave.placeCardsAndEval(heroHandCopy, b[0], b[1], b[2], b[3], deckCopy, heroEmptyCards, sampleSize);
                 if (score > maxScore)
                 {
                     lock ("maxscorelock")
@@ -132,7 +133,7 @@ namespace Core
         public bool lookAndGet(byte[] heroHand, out decimal score, int heroEmptyCards)
         {
             score = 0;
-            if (heroEmptyCards > 2) return false;
+           // if (heroEmptyCards > 2) return false;
             LineValue shortValue;
             LineValue middleValue;
             bool isFantasyGained;
