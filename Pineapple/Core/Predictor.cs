@@ -18,6 +18,7 @@ namespace Core
             secondTriple = 0;
             var emptyIndexPack = determineEmptyIndexes(heroHand);
             decimal maxScore = -1000m;
+            decimal maxScore2 = -1000m;
 
             var variation = new List<byte[]>();
             foreach (var pair in emptyIndexPack)
@@ -31,9 +32,57 @@ namespace Core
             byte siPar = 0;
             byte ftPar = 0;
             byte stPar = 0;
+            byte siPar2 = 0;
+            byte fiPar2 = 0;
+            byte ftPar2 = 0;
+            byte stPar2 = 0;
+
 
             int heroEmptyCards = 0;
             foreach (var h in heroHand) heroEmptyCards += (h == 0 ? 1 : 0);
+
+            foreach (var b in variation)
+            {
+                var heroHandCopy = new byte[13];
+                var deckCopy = new byte[52];
+                deck.CopyTo(deckCopy, 0);
+                heroHand.CopyTo(heroHandCopy, 0);
+                Predictor slave = new Predictor();
+                var score = slave.placeCardsAndEval(heroHandCopy, b[0], b[1], b[2], b[3], deckCopy, heroEmptyCards, sampleSize);
+                if (score > maxScore)
+                {
+                    lock ("maxscorelock")
+                    {
+                        if (score > maxScore)
+                        {
+                            fiPar2 = fiPar;
+                            siPar2 = siPar;
+                            ftPar2 = ftPar;
+                            stPar2 = stPar;
+                            maxScore2 = maxScore;
+                            fiPar = b[0];
+                            siPar = b[1];
+                            ftPar = b[2];
+                            stPar = b[3];
+                            maxScore = score;
+                        }
+                    }
+                }
+                else if (score > maxScore2)
+                {
+                    lock ("maxscorelock")
+                    {
+                        if (score > maxScore2)
+                        {
+                            fiPar2 = b[0];
+                            siPar2 = b[1];
+                            ftPar2 = b[2];
+                            stPar2 = b[3];
+                            maxScore2 = score;
+                        }
+                    }
+                }
+            }
 
             Parallel.ForEach(variation, (b) =>
             {
@@ -43,6 +92,54 @@ namespace Core
                 heroHand.CopyTo(heroHandCopy, 0);
                 Predictor slave = new Predictor();
                 var score = slave.placeCardsAndEval(heroHandCopy, b[0], b[1], b[2], b[3], deckCopy, heroEmptyCards, sampleSize);
+                if (score > maxScore)
+                {
+                    lock ("maxscorelock")
+                    {
+                        if (score > maxScore)
+                        {
+                            fiPar2 = fiPar;
+                            siPar2 = siPar;
+                            ftPar2 = ftPar;
+                            stPar2 = stPar;
+                            maxScore2 = maxScore;
+                            fiPar = b[0];
+                            siPar = b[1];
+                            ftPar = b[2];
+                            stPar = b[3];
+                            maxScore = score;
+                        }
+                    }
+                }
+                else if (score > maxScore2)
+                {
+                    lock ("maxscorelock")
+                    {
+                        if (score > maxScore2)
+                        {
+                            fiPar2 = b[0];
+                            siPar2 = b[1];
+                            ftPar2 = b[2];
+                            stPar2 = b[3];
+                            maxScore2 = score;
+                        }
+                    }
+                }
+            });
+
+            variation.Clear();
+            variation.Add(new[] { fiPar, siPar, ftPar, stPar });
+            variation.Add(new[] { fiPar2, siPar2, ftPar2, stPar2 });
+            maxScore = -1000;
+
+            Parallel.ForEach(variation, (b) =>
+            {
+                var heroHandCopy = new byte[13];
+                var deckCopy = new byte[52];
+                deck.CopyTo(deckCopy, 0);
+                heroHand.CopyTo(heroHandCopy, 0);
+                Predictor slave = new Predictor();
+                var score = slave.placeCardsAndEval(heroHandCopy, b[0], b[1], b[2], b[3], deckCopy, heroEmptyCards, sampleSize * 3);
                 if (score > maxScore)
                 {
                     lock ("maxscorelock")
