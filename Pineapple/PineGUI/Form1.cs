@@ -26,6 +26,7 @@ namespace PineGUI
         private void btnRestart_Click(object sender, EventArgs e)
         {
             tbxVillain.Text = String.Empty;
+            tbxVillain2.Text = String.Empty;
             tbxDeadCards.Text = String.Empty;
             tbxHeroShort.Text = String.Empty;
             tbxHeroMiddle.Text = String.Empty;
@@ -46,9 +47,10 @@ namespace PineGUI
                 byte[] deck = InputReader.Deck().Remove(tbxHeroShort.Text)
                     .Remove(tbxHeroMiddle.Text)
                     .Remove(tbxHeroTop.Text)
-                    .Remove(tbxVillain.Text)
+                    .Remove(tbxVillain.Text.Replace(Environment.NewLine," "))
+                    .Remove(tbxVillain2.Text.Replace(Environment.NewLine, " "))
                     .Remove(tbxCurrentTriple.Text)
-                    .Remove(tbxDeadCards.Text).Deck;
+                    .Remove(tbxDeadCards.Text.Replace(Environment.NewLine, " ")).Deck;
 
                 int nonEmptyCount = 0;
                 foreach (var b in heroHand)
@@ -143,6 +145,11 @@ namespace PineGUI
         private void tbxDeadCards_DoubleClick(object sender, EventArgs e)
         {
             ShowPicker(tbxDeadCards);
+        }
+
+        private void tbxVillain2_DoubleClick(object sender, EventArgs e)
+        {
+            ShowPicker(tbxVillain2);
         }
     }
 }

@@ -46,21 +46,13 @@ namespace PineGUI
 
         private void btnOk_Click(object sender, EventArgs e)
         {
-            foreach (var control in this.Controls)
-            {
-                var chb = control as CheckBox;
-                if (chb != null && chb.Checked && !outs.Contains(chb.Text.ToLower()))
-                {
-                    Result.Append(chb.Text);
-                    Result.Append(" ");
-                }
-            }
             DialogResult = System.Windows.Forms.DialogResult.OK;
             this.Close();
         }
 
         private void _2h_CheckedChanged(object sender, EventArgs e)
         {
+            Result.Clear();
             foreach (var control in this.Controls)
             {
                 var chb = control as CheckBox;
@@ -70,7 +62,7 @@ namespace PineGUI
                     Result.Append(" ");
                 }
             }
-            lblResult = Result.ToString();
+            lblResult.Text = Result.ToString();
         }
     }
 }

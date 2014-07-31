@@ -47,6 +47,8 @@
             this.tbx3rdSampleSize = new System.Windows.Forms.TextBox();
             this.lblBestPlace = new System.Windows.Forms.Label();
             this.btnClear = new System.Windows.Forms.Button();
+            this.tbxVillain2 = new System.Windows.Forms.TextBox();
+            this.label7 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // tbxVillain
@@ -119,17 +121,17 @@
             // 
             // tbxDeadCards
             // 
-            this.tbxDeadCards.Location = new System.Drawing.Point(368, 33);
+            this.tbxDeadCards.Location = new System.Drawing.Point(535, 273);
             this.tbxDeadCards.Multiline = true;
             this.tbxDeadCards.Name = "tbxDeadCards";
-            this.tbxDeadCards.Size = new System.Drawing.Size(277, 124);
+            this.tbxDeadCards.Size = new System.Drawing.Size(277, 76);
             this.tbxDeadCards.TabIndex = 8;
             this.tbxDeadCards.DoubleClick += new System.EventHandler(this.tbxDeadCards_DoubleClick);
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(368, 7);
+            this.label3.Location = new System.Drawing.Point(531, 243);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(91, 20);
             this.label3.TabIndex = 9;
@@ -217,11 +219,31 @@
             this.btnClear.UseVisualStyleBackColor = true;
             this.btnClear.Click += new System.EventHandler(this.btnClear_Click);
             // 
+            // tbxVillain2
+            // 
+            this.tbxVillain2.Location = new System.Drawing.Point(491, 33);
+            this.tbxVillain2.Multiline = true;
+            this.tbxVillain2.Name = "tbxVillain2";
+            this.tbxVillain2.Size = new System.Drawing.Size(254, 124);
+            this.tbxVillain2.TabIndex = 19;
+            this.tbxVillain2.DoubleClick += new System.EventHandler(this.tbxVillain2_DoubleClick);
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(487, 9);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(63, 20);
+            this.label7.TabIndex = 21;
+            this.label7.Text = "Villain 2";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(854, 499);
+            this.Controls.Add(this.label7);
+            this.Controls.Add(this.tbxVillain2);
             this.Controls.Add(this.btnClear);
             this.Controls.Add(this.lblBestPlace);
             this.Controls.Add(this.tbx3rdSampleSize);
@@ -269,6 +291,8 @@
         private System.Windows.Forms.TextBox tbx3rdSampleSize;
         private System.Windows.Forms.Label lblBestPlace;
         private System.Windows.Forms.Button btnClear;
+        private System.Windows.Forms.TextBox tbxVillain2;
+        private System.Windows.Forms.Label label7;
     }
 }
 
