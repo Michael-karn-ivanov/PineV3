@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using Core;
+using System.IO;
 
 namespace PineGUI
 {
@@ -93,7 +94,8 @@ namespace PineGUI
         {
             apply(firstIndex, firstValue);
             apply(secondIndex, secondValue);
-            tbxDeadCards.Text += (" " + InputReader.WriteSingle(outValue));            
+            tbxDeadCards.Text += (" " + InputReader.WriteSingle(outValue));
+            tbxCurrentTriple.Text = "";
         }
 
         private void apply(byte index, byte value)
@@ -150,6 +152,50 @@ namespace PineGUI
         private void tbxVillain2_DoubleClick(object sender, EventArgs e)
         {
             ShowPicker(tbxVillain2);
+        }
+
+        private void btnSave_Click(object sender, EventArgs e)
+        {
+            var saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "hand files (*.hand)|*.hand";
+            saveFileDialog.RestoreDirectory = true;
+
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                var fileName = saveFileDialog.FileName;
+                if (!fileName.EndsWith(".hand")) fileName += ".hand";
+                using (TextWriter w = new System.IO.StreamWriter(fileName))
+                {
+                    w.WriteLine(tbxVillain.Text);
+                    w.WriteLine(tbxVillain2.Text);
+                    w.WriteLine(tbxCurrentTriple.Text);
+                    w.WriteLine(tbxDeadCards.Text);
+                    w.WriteLine(tbxHeroShort.Text);
+                    w.WriteLine(tbxHeroMiddle.Text);
+                    w.WriteLine(tbxHeroTop.Text);
+                    w.Flush();
+                    w.Close();
+                }
+            }
+        }
+
+        private void btnLoad_Click(object sender, EventArgs e)
+        {
+            var openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "hand files (*.hand)|*.hand";
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                using (TextReader r = new StreamReader(openFileDialog.FileName))
+                {
+                    tbxVillain.Text = r.ReadLine();
+                    tbxVillain2.Text = r.ReadLine();
+                    tbxCurrentTriple.Text = r.ReadLine();
+                    tbxDeadCards.Text = r.ReadLine();
+                    tbxHeroShort.Text = r.ReadLine();
+                    tbxHeroMiddle.Text = r.ReadLine();
+                    tbxHeroTop.Text = r.ReadLine();
+                }
+            }
         }
     }
 }
