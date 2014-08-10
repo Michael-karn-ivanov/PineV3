@@ -69,7 +69,7 @@ namespace PineGUI
                 Predictor predictor = new Predictor();
                 decimal score = predictor.FindBestPlaceForTriple(heroHand, deck, triple,
                     out firstIndex, out secondIndex, out firstValue, out secondValue,
-                    sampleSize);
+                    sampleSize, false, new List<Tuple<byte, byte, byte, byte, decimal, Dictionary<string, float>>>());
 
                 for (int i = 0; i < triple.Length; i++)
                 {
@@ -195,6 +195,64 @@ namespace PineGUI
                     tbxHeroMiddle.Text = r.ReadLine();
                     tbxHeroTop.Text = r.ReadLine();
                 }
+            }
+        }
+
+        private void btnGoWithAnalyze_Click(object sender, EventArgs e)
+        {
+            btnApply.Enabled = false;
+            Cursor.Current = Cursors.WaitCursor;
+            try
+            {
+                byte[] heroHand = InputReader.HeroHand().Short(tbxHeroShort.Text).Middle(tbxHeroMiddle.Text)
+                    .Top(tbxHeroTop.Text).Hand;
+                byte[] triple = InputReader.ReadInput(tbxCurrentTriple.Text);
+                byte[] deck = InputReader.Deck().Remove(tbxHeroShort.Text)
+                    .Remove(tbxHeroMiddle.Text)
+                    .Remove(tbxHeroTop.Text)
+                    .Remove(tbxVillain.Text.Replace(Environment.NewLine, " "))
+                    .Remove(tbxVillain2.Text.Replace(Environment.NewLine, " "))
+                    .Remove(tbxCurrentTriple.Text)
+                    .Remove(tbxDeadCards.Text.Replace(Environment.NewLine, " ")).Deck;
+
+                int nonEmptyCount = 0;
+                foreach (var b in heroHand)
+                {
+                    if (b != 0) nonEmptyCount++;
+                }
+                int sampleSize = nonEmptyCount == 7 ? Int32.Parse(tbx2ndSampleSize.Text)
+                    : (nonEmptyCount == 9 ? Int32.Parse(tbx3rdSampleSize.Text) : 0);
+                if (sampleSize == 0)
+                {
+                    MessageBox.Show("Не могу определить улицу (количество карт у Hero не 7 и не 9)");
+                    return;
+                }
+
+                Predictor predictor = new Predictor();
+                var data = new List<Tuple<byte, byte, byte, byte, decimal, Dictionary<string, float>>>();
+                decimal score = predictor.FindBestPlaceForTriple(heroHand, deck, triple,
+                    out firstIndex, out secondIndex, out firstValue, out secondValue,
+                    sampleSize, true, data);
+
+                for (int i = 0; i < triple.Length; i++)
+                {
+                    if (firstValue != triple[i] && secondValue != triple[i])
+                        outValue = triple[i];
+                }
+
+                btnApply.Enabled = true;
+
+                lblBestPlace.Text = String.Format("{0}: {1} -> {2}, {3} -> {4}",
+                    score.ToString(), InputReader.WriteSingle(firstValue),
+                    InputReader.WriteLine(firstIndex), InputReader.WriteSingle(secondValue),
+                    InputReader.WriteLine(secondIndex));
+
+                Analytics f = new Analytics(data);
+                f.Show();
+            }
+            finally
+            {
+                Cursor.Current = Cursors.Default;
             }
         }
     }

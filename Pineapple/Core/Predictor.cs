@@ -9,8 +9,9 @@ namespace Core
     public class Predictor
     {
         public Random random = new Random(DateTime.Now.Millisecond);
+        public int[] HandCount = new int[1001];
 
-        public decimal FindBestPlaceForTriple(byte[] heroHand, byte[] deck, byte[] triple, out byte firstIndex, out byte secondIndex, out byte firstTriple, out byte secondTriple, int sampleSize)
+        public decimal FindBestPlaceForTriple(byte[] heroHand, byte[] deck, byte[] triple, out byte firstIndex, out byte secondIndex, out byte firstTriple, out byte secondTriple, int sampleSize, bool withAnalyze, List<Tuple<byte, byte, byte, byte, decimal, Dictionary<string, float>>> data)
         {
             firstIndex = 0;
             secondIndex = 0;
@@ -41,6 +42,8 @@ namespace Core
             int heroEmptyCards = 0;
             foreach (var h in heroHand) heroEmptyCards += (h == 0 ? 1 : 0);
 
+            #region for debug
+            /*
             foreach (var b in variation)
             {
                 var heroHandCopy = new byte[13];
@@ -82,7 +85,24 @@ namespace Core
                         }
                     }
                 }
+                if (withAnalyze)
+                {
+                    Dictionary<string, float> table = new Dictionary<string, float>();
+                    int size = heroEmptyCards == 2 ? sampleSize : 
+                        (heroEmptyCards == 4 ? sampleSize ^ 2 : 
+                        (heroEmptyCards == 6 ? sampleSize ^ 3 : 
+                        sampleSize ^ 4));
+                    for (int i = 0; i < 1001; i++)
+                    {
+                        if (slave.HandCount[i] == 0) continue;
+                        float percentile = 100 * slave.HandCount[i] / size;
+                        if (percentile < 0.5) continue;
+                        table.Add(presentIndexAsHand(i), percentile);
+                    }
+                }
             }
+             * */
+            #endregion
 
             Parallel.ForEach(variation, (b) =>
             {
@@ -124,6 +144,24 @@ namespace Core
                             maxScore2 = score;
                         }
                     }
+                }
+                if (withAnalyze)
+                {
+                    Dictionary<string, float> table = new Dictionary<string, float>();
+                    int size = heroEmptyCards == 2 ? sampleSize :
+                        (heroEmptyCards == 4 ? sampleSize * sampleSize :
+                        (heroEmptyCards == 6 ? sampleSize * sampleSize * sampleSize :
+                        sampleSize * sampleSize * sampleSize * sampleSize));
+                    for (int i = 0; i < 1001; i++)
+                    {
+                        if (slave.HandCount[i] == 0) continue;
+                        float percentile = 100 * slave.HandCount[i] / size;
+                        if (percentile < 0.005) continue;
+                        table.Add(presentIndexAsHand(i), percentile);
+                    }
+
+                    data.Add(new Tuple<byte, byte, byte, byte, decimal, Dictionary<string, float>>(
+                        b[0], b[1], b[2], b[3], score, table));
                 }
             });
 
@@ -192,6 +230,73 @@ namespace Core
             return maxScore;
         }
 
+        private int presentHandAsIndex(LineValue shortLine, LineValue middleLine, LineValue topLine, bool isFantazyGained)
+        {
+            return (isFantazyGained ? 500 : 0) + 100 * presentValueAsIndex(shortLine) + 10 * presentValueAsIndex(middleLine) + presentValueAsIndex(topLine);
+        }
+
+        private String presentIndexAsHand(int index)
+        {
+            if (index == 1000) return "DEAD";
+            StringBuilder builder = new StringBuilder();
+            bool isFantazyGained = false;
+            if (index > 500)
+            {
+                isFantazyGained = true;
+                index -= 500;
+            }
+            var rem10 = index % 100;
+            var rem = rem10 % 10;          
+            
+            builder.Append(presentIndexAsValue(rem));
+            builder.Append("+");
+            builder.Append(presentIndexAsValue((int)(rem10 - rem) / 10));
+            builder.Append("+");
+            builder.Append(presentIndexAsValue((int)(index - rem10) / 100));
+            if (isFantazyGained)
+            {
+                builder.Append("+Fantazy");
+   //             builder.Append(isFantazyGained ? "+F+" : "---");
+            }
+            return builder.ToString();
+        }
+
+        private String presentIndexAsValue(int index)
+        {
+            switch (index)
+            {
+                case 0: return "Highcard";
+                case 1: return "Pair";
+                case 2: return "2 Pairs";
+                case 3: return "Set";
+                case 4: return "Straight";
+                case 5: return "Flash";
+                case 6: return "Full House";
+                case 7: return "Care";
+                case 8: return "Straight Flash";
+                case 9: return "Royal";
+                default: return "";
+            }
+        }
+
+        private byte presentValueAsIndex(LineValue value)
+        {
+            switch (value)
+            {
+                case LineValue.Highcard: return 0;
+                case LineValue.Pair: return 1;
+                case LineValue.TwoPairs: return 2;
+                case LineValue.Set: return 3;
+                case LineValue.Straight: return 4;
+                case LineValue.Flash: return 5;
+                case LineValue.FullHouse: return 6;
+                case LineValue.Care: return 7;
+                case LineValue.StraightFlash: return 8;
+                case LineValue.Royal: return 9;
+                default: throw new Exception();
+            }
+        }
+
         public decimal Evaluate(byte[] heroHand, byte[] deck, int heroEmptyCards, int sampleSize)
         {
             LineValue shortValue;
@@ -205,8 +310,29 @@ namespace Core
 
             decimal score;
 
-            if (lookAndGet(heroHand, out score, heroEmptyCards))
+            if (lookAndGet(heroHand, out score, heroEmptyCards, out shortValue, out middleValue, out topValue, out isFantasyGained))
+            {
+                if (score == DeadHandEV)
+                {
+                    if (heroEmptyCards == 0)
+                        HandCount[1000]++;
+                    else if (heroEmptyCards == 2)
+                        HandCount[1000] += sampleSize;
+                    else if (heroEmptyCards == 4)
+                        HandCount[1000] += (sampleSize * sampleSize);
+                    else
+                        HandCount[1000] += (sampleSize * sampleSize * sampleSize);
+                }
+                else 
+                {
+                    var idx = presentHandAsIndex(shortValue, middleValue, topValue, isFantasyGained);
+                    if (heroEmptyCards == 0)
+                        HandCount[idx]++;
+                    else
+                        HandCount[idx] += sampleSize;
+                }
                 return score;
+            }
 
             decimal sum = 0m;
             var heroHandCopy = new byte[13];
@@ -227,13 +353,13 @@ namespace Core
         public const decimal DeadHandEV = -6.0m;
         public const decimal FantazyEV = 11.5m;
 
-        public bool lookAndGet(byte[] heroHand, out decimal score, int heroEmptyCards)
+        public bool lookAndGet(byte[] heroHand, out decimal score, int heroEmptyCards, out LineValue shortValue, out LineValue middleValue, out LineValue topValue, out bool isFantasyGained)
         {
             score = 0;
            // if (heroEmptyCards > 2) return false;
-            LineValue shortValue;
-            LineValue middleValue;
-            bool isFantasyGained;
+            shortValue = LineValue.E3;
+            middleValue = LineValue.E5;
+            topValue = LineValue.E5;
             byte[] shortCount;
             byte[] middleCount;
             byte[] countValue;
@@ -251,7 +377,7 @@ namespace Core
                 for (int i = 13; i > 0; i--)
                 {
                     if (middleCount[i] == 1 && shortCount[i] == 0) { break; }
-                    else if (shortCount[i] == 0 && middleCount[i] == 1)
+                    else if (shortCount[i] == 1 && middleCount[i] == 0)
                     {
                         score = DeadHandEV;
                         return true;
@@ -277,7 +403,7 @@ namespace Core
                     for (int i = 13; i > 0; i--)
                     {
                         if (middleCount[i] == 1 && shortCount[i] == 0) { break; }
-                        else if (middleCount[i] == 0 && middleCount[i] == 1)
+                        else if (middleCount[i] == 0 && shortCount[i] == 1)
                         {
                             score = DeadHandEV;
                             return true;
@@ -301,7 +427,7 @@ namespace Core
             }
             #endregion
             byte[] topCount;
-            LineValue topValue = getValueFromRange(heroHand, 8, 13, out topCount);
+            topValue = getValueFromRange(heroHand, 8, 13, out topCount);
             int topInt = (int)topValue;
 
             #region Highcard dead middle vs top

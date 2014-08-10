@@ -51,6 +51,7 @@
             this.label7 = new System.Windows.Forms.Label();
             this.btnSave = new System.Windows.Forms.Button();
             this.btnLoad = new System.Windows.Forms.Button();
+            this.btnGoWithAnalyze = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // tbxVillain
@@ -143,7 +144,7 @@
             // 
             this.btnApply.Location = new System.Drawing.Point(16, 243);
             this.btnApply.Name = "btnApply";
-            this.btnApply.Size = new System.Drawing.Size(101, 41);
+            this.btnApply.Size = new System.Drawing.Size(79, 41);
             this.btnApply.TabIndex = 10;
             this.btnApply.Text = "Apply";
             this.btnApply.UseVisualStyleBackColor = true;
@@ -151,9 +152,9 @@
             // 
             // btnFind
             // 
-            this.btnFind.Location = new System.Drawing.Point(143, 243);
+            this.btnFind.Location = new System.Drawing.Point(124, 243);
             this.btnFind.Name = "btnFind";
-            this.btnFind.Size = new System.Drawing.Size(123, 41);
+            this.btnFind.Size = new System.Drawing.Size(58, 41);
             this.btnFind.TabIndex = 11;
             this.btnFind.Text = "Go!";
             this.btnFind.UseVisualStyleBackColor = true;
@@ -193,7 +194,7 @@
             this.tbx2ndSampleSize.Name = "tbx2ndSampleSize";
             this.tbx2ndSampleSize.Size = new System.Drawing.Size(100, 26);
             this.tbx2ndSampleSize.TabIndex = 15;
-            this.tbx2ndSampleSize.Text = "125";
+            this.tbx2ndSampleSize.Text = "150";
             // 
             // tbx3rdSampleSize
             // 
@@ -259,11 +260,22 @@
             this.btnLoad.UseVisualStyleBackColor = true;
             this.btnLoad.Click += new System.EventHandler(this.btnLoad_Click);
             // 
+            // btnGoWithAnalyze
+            // 
+            this.btnGoWithAnalyze.Location = new System.Drawing.Point(208, 243);
+            this.btnGoWithAnalyze.Name = "btnGoWithAnalyze";
+            this.btnGoWithAnalyze.Size = new System.Drawing.Size(58, 41);
+            this.btnGoWithAnalyze.TabIndex = 24;
+            this.btnGoWithAnalyze.Text = "Go++";
+            this.btnGoWithAnalyze.UseVisualStyleBackColor = true;
+            this.btnGoWithAnalyze.Click += new System.EventHandler(this.btnGoWithAnalyze_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(854, 499);
+            this.Controls.Add(this.btnGoWithAnalyze);
             this.Controls.Add(this.btnLoad);
             this.Controls.Add(this.btnSave);
             this.Controls.Add(this.label7);
@@ -319,6 +331,7 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Button btnSave;
         private System.Windows.Forms.Button btnLoad;
+        private System.Windows.Forms.Button btnGoWithAnalyze;
     }
 }
 

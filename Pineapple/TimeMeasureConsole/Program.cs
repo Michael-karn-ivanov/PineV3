@@ -40,7 +40,8 @@ namespace TimeMeasureConsole
             byte secondIndex;
             byte firstValue;
             byte secondValue;
-            objectUnderTest.FindBestPlaceForTriple(heroHand, deck, triple, out firstIndex, out secondIndex, out firstValue, out secondValue, 125);
+            objectUnderTest.FindBestPlaceForTriple(heroHand, deck, triple, out firstIndex, out secondIndex, out firstValue, out secondValue, 125,
+                false, new List<Tuple<byte, byte, byte, byte, decimal, Dictionary<string, float>>>());
         }
 
         static void methodAgainstEmpty(Predictor objectUnderTest)
@@ -52,7 +53,8 @@ namespace TimeMeasureConsole
             byte secondIndex;
             byte firstValue;
             byte secondValue;
-            objectUnderTest.FindBestPlaceForTriple(heroHand, deck, triple, out firstIndex, out secondIndex, out firstValue, out secondValue, 125);
+            objectUnderTest.FindBestPlaceForTriple(heroHand, deck, triple, out firstIndex, out secondIndex, out firstValue, out secondValue, 125,
+                false, new List<Tuple<byte, byte, byte, byte, decimal, Dictionary<string, float>>>());
         }
     }
 }
